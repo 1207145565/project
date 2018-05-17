@@ -1,0 +1,122 @@
+#include<stdio.h>
+#include <stdlib.h>
+void SwapList(int a[],int n);
+
+#define N 9
+typedef struct node{
+	int data;
+	struct node *next;
+	struct node *prior;
+}Node,*Pnode; 
+
+Pnode creat_list();
+
+void print_List(Pnode first);
+//循环单链表的创建，返回尾节点 
+Pnode creat_list(){
+	Pnode first = (Pnode)malloc(sizeof(node));//创建头结点 
+	first->next = first;
+	
+	Pnode rear = first; //尾指针
+	Pnode New;
+	
+	int len=0;
+	int i=0 ;
+	int val=0;
+	
+	printf("输入此循环链表的长度len = ");
+	scanf("%d",&len);
+	 
+	 for(i = 0; i<len; i++){
+	 	printf("输入第%d个元素的值 val = ", i+1);  
+        scanf("%d", &val);
+		New = (Pnode)malloc(sizeof(Node));//开辟新节点
+		
+		New->data = val;
+		New->next = first; //新节点的指针域始终指向头结点
+		
+		rear->next = New;
+		rear = New; 
+	 }
+	 return rear;
+}
+
+void singleToDu(Pnode first){
+	Pnode p,q;
+	p = first;
+	q = first->next;
+	while(q!=first){
+		q->prior = p;
+		p = p->next;
+		q = q->next;
+	}
+	q->prior = p;
+}
+
+void print_afterList(Pnode first){
+	Pnode p = first->next;
+	Pnode head = p->next;
+	
+	while(first!=p){
+		printf("%d",first->data);
+		first = first->prior;
+	}
+	printf("\n");
+}
+int main(){
+	int A[N]={-1,2,-3,4,5,-6,7,8,9};
+	printf("本来的排序!\n");
+	for(int i = 0;i<N;i++){
+		printf("%d",A[i]);
+	}
+	printf("\n");
+	SwapList(A,N);
+	
+	system("pause");
+	Pnode rear;
+	rear = creat_list();
+	printf("后继结点访问链表!\n");
+	print_List(rear);
+	singleToDu(rear);
+	printf("前驱结点访问链表!\n");
+	print_afterList(rear);
+	return 0;
+}
+void SwapList(int a[],int n){
+	int i=0,j=n-1;
+	for(int k=0,i=k;k<n/2;k++){
+		if(a[i]<0&&a[j]>0){
+			i++;
+			j--;
+		}
+		if(a[i]<0&&a[j]<0){
+			i++;
+		}
+		if(a[i]>0&&a[j]>0){
+			j--;
+		}
+		if(a[i]>0&&a[j]<0){
+			int x = 0;
+			x = a[i];
+			a[i] = a[j];
+			a[j] = x;
+		}
+	}
+	printf("改变后的排序!\n");
+	for(i=0;i<n;i++){
+		printf("%d",a[i]);
+	}
+	printf("\n");
+}
+
+void print_List(Pnode first){
+	Pnode p = first->next;
+	Pnode head = p->next;
+	
+	while(head!=p){
+		printf("%d",head->data);
+		head = head->next;
+	}
+	printf("\n");
+}
+
