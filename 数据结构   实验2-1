@@ -1,0 +1,296 @@
+#include<stdio.h>
+#include<stdlib.h>
+#define MAX_SIZE 100
+typedef char ElemType;
+
+
+struct Stack{          
+	ElemType data[MAX_SIZE];
+	int top;
+}MyStack;
+
+struct Stack_data{
+	double data[MAX_SIZE];
+	int top_data;
+}M_data;
+
+
+//数据栈初始化栈 
+void init_data(){
+	M_data.top_data = 0;
+}
+
+ 
+//初始化栈 
+void  init(){
+	MyStack.top = 0;
+}
+
+
+//数据栈判断栈是否为空 
+bool isEmpty_data(){
+	return M_data.top_data ==0 ? true : false;
+}
+//判断栈是否为空
+bool isEmpty(){
+	return MyStack.top ==0 ? true : false;
+} 
+
+
+//数据栈读取栈顶元素（不出栈） 
+double gettop_data(){
+	if(isEmpty_data()){
+		printf("栈为空!");
+		exit(0);
+	}
+	return M_data.data[M_data.top_data-1];
+}
+//读取栈顶元素(不出栈)
+ElemType gettop(){
+	if(isEmpty()){
+		printf("栈为空!");
+		exit(0);
+	}
+	return MyStack.data[MyStack.top-1];
+} 
+
+//入栈
+void push(char x){
+	if(MyStack.top == MAX_SIZE){
+		printf("栈已满!\n");
+		exit(0);
+	}
+	MyStack.data[MyStack.top] = x;
+	MyStack.top++;
+}
+
+
+//数据栈入栈 
+void push_data(double x){
+	if(M_data.top_data == MAX_SIZE){
+		printf("栈已满!\n");
+		exit(0);
+	}
+	M_data.data[M_data.top_data] = x;
+	M_data.top_data++;
+}
+
+
+//出栈
+ElemType pop(){
+	if(isEmpty()){
+		printf("栈为空!\n");
+		exit(0);
+	}
+	ElemType e;
+	e = MyStack.data[--MyStack.top];
+	return e;
+} 
+
+//数据栈出栈 
+double pop_data(){
+	if(M_data.top_data == MAX_SIZE){
+		printf("栈已满!\n");
+		exit(0);
+	}
+	double e;
+	e = M_data.data[--M_data.top_data];
+	return e;
+}
+//判断是运算符还是运算对象 
+ bool isOperator(char op){
+ 	switch(op){
+ 		case '+':
+    	case '-':
+    	case '*':
+    	case '/':
+        return 1;
+    default : 
+        return 0;
+	 }
+ }
+ 
+ //比较运算符优先级 
+int priority(char op){
+	 switch(op)
+    {
+    case '#':
+        return -1;
+    case '(':
+        return 0;
+    case '+':
+    case '-':
+        return 1;
+    case '*':
+    case '/':
+        return 2;
+    default :
+        return -1;
+    }
+}
+
+//将中缀表达式转换为后缀表达式
+void postfix(char pre[],char post[],int &n){
+	int i =0,j=0;
+	init(); //初始化储存运算符的栈
+	
+	push('#'); //将结束标志'#'存为栈底
+	
+	while(pre[i]!='#'){
+		if( pre[i] > '0' && pre[i] < '9' ||pre[i]== '.'){ //遇到数字或者小数点直接存入后缀表达式 
+			post[j++] = pre[i];
+			
+			n++;											//记录后缀表达式的长度 
+		}
+		else if(pre[i] == '('){								//遇到左括号不用比较直接入栈 
+			push(pre[i]);
+		}
+		else if(pre[i] == ')'){				//遇到右括号将其对应左括号后的操作符（操作符栈中的）全部写入后缀表达式
+			while(gettop()!='('){
+				post[j++] = pop();
+				n++;
+			}
+			pop(); //将左括号出栈,后缀表达式中不存在括号 
+		}
+		
+		else if(isOperator(pre[i])){		
+			post[j++] = ' '; // 用空格分开操作数(
+            n++;
+          if(gettop()=='#')
+		  {
+          	 push(pre[i]); 
+          	 
+		  }
+           else if(priority(pre[i]) <= priority(gettop())) 
+            {
+                // 当前的操作符小于等于栈顶操作符的优先级时，将栈顶操作符写入到后缀表达式，重复此过程
+                post[j++] = pop();
+                n++;
+                push(pre[i]); 
+				   // 当前操作符优先级大于栈顶操作符的优先级，将该操作符入栈
+            }
+            else if(priority(pre[i]) > priority(gettop()))
+             {
+             	push(pre[i]);
+             	
+			 }
+            
+		}
+		i++;
+	} 
+	
+	while(MyStack.top) // 将所有的操作符加入后缀表达式
+    {
+        post[j++] = pop();
+        n++;
+    }
+} 
+
+double read_number(char str[],int *i)
+{
+    double x=0.0;
+    int k = 0;
+    while(str[*i] >='0' && str[*i]<='9')  // 处理整数部分
+    {
+        x = x*10+(str[*i]-'0');
+        (*i)++;
+    }
+
+    if(str[*i]=='.') // 处理小数部分
+    {
+        (*i)++;
+        while(str[*i] >= '0'&&str[*i] <='9')
+        {
+            x = x * 10 + (str[*i]-'0');
+            (*i)++;
+            k++;
+        }
+    }
+    while(k!=0)
+    {
+        x /= 10.0;
+        k--;
+    }
+
+    return x;
+}
+
+double postfix_value(char post[])
+{
+ 	init_data();
+
+    int i=0 ;
+    double x1,x2;
+
+    while(post[i] !='#')
+    {
+        if(post[i] >='0' && post[i] <='9')
+            push_data(read_number(post,&i));
+            else if(post[i] == ' ')
+            i++;
+        else if (post[i] =='+')
+        {
+            x2 = pop_data();
+            x1 = pop_data();
+            push_data(x1+x2);
+            i++;
+        }
+        else if (post[i] =='-')
+        {
+            x2 = pop_data();
+            x1 = pop_data();
+            push_data(x1-x2);
+            i++;
+        }
+        else if (post[i] =='*')
+        {
+            x2 = pop_data();
+            x1 = pop_data();
+            push_data(x1*x2);
+            i++;
+        }
+        else if (post[i] =='/')
+        {
+            x2 = pop_data();
+            x1 = pop_data();
+            push_data(x1/x2);
+            i++;
+        }
+    }
+    return gettop_data();
+}
+
+int main(){
+	
+	char pre[MAX_SIZE];
+	printf("请输入中缀表达式,以#为结束标志!\n");
+	int i =0;
+	scanf("%s",&pre);
+	
+	for(int k=0;k<MAX_SIZE;k++){
+		if(pre[k] == '/'){
+			if(pre[k+1] == '0'){
+				printf("被除数不能为零,请重新输入!\n");
+				exit(0);
+			}
+		}
+	}
+	
+	char post[MAX_SIZE];
+	
+	int n=0;
+	
+	postfix(pre,post,n);
+	
+	printf("后缀表达式为:");
+	for(i=0;i<n;i++){
+		printf("%c",post[i]);
+	}
+	printf("\n");
+	
+	double value;
+	value = postfix_value(post);
+	printf("后缀表达式的值为:  ");
+	printf("%lf",value);
+	return 0;
+}
